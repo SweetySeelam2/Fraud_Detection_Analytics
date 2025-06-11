@@ -1,3 +1,4 @@
+python_version < 3.10
 streamlit
 pandas
 numpy
@@ -7,3 +8,4 @@ shap
 matplotlib
 joblib
 gdown
+shap<=0.41.0
