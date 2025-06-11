@@ -4,7 +4,6 @@
 
 # 🔐 Enterprise-Grade Credit Card Fraud Detection System
 
----
 
 An advanced, interactive, enterprise-grade fraud detection platform built with **XGBoost**, **SHAP**, and **Streamlit**. This solution identifies fraudulent credit card transactions in real-time with explainability and actionable business insights.
 
