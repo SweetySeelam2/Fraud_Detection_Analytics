@@ -10,7 +10,7 @@ import gdown
 
 # ── Data loading from Google Drive ─────────────────────────────────────────────
 CSV_FILE = "creditcard.csv"  # Saved directly in project root
-DRIVE_ID = "1oiHTwg5NtOW4cihI37qfe3eE0P84enTN"
+DRIVE_ID = "13E4KHR2-eq3P-rj08nORBZ6Bhc1W5E3n"
 DRIVE_URL = f"https://drive.google.com/uc?export=download&id={DRIVE_ID}"
 
 if not os.path.exists(CSV_FILE):
