@@ -84,6 +84,13 @@ gdown.download(DRIVE_URL, CSV_FILE)
 
 ---
 
+## 🌐 Live App
+
+Use the app here:                                                   
+👉 (frauddetection-ml.streamlit.app)[https://frauddetection-ml.streamlit.app/]
+
+---
+
 ## 🔍 Project Structure
 
 Fraud_Analytics/                                                 
