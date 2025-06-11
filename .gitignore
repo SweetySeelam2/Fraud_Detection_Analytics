@@ -1,0 +1,18 @@
+# Ignore notebook checkpoints
+.ipynb_checkpoints/
+
+# Never commit secret files
+.env
+fraud_env/
+data/creditcard.csv
+creditcard.csv
+data/creditcard_sample.csv
+data/creditcard.zip
+*.csv
+*.zip
+kaggle.json
+sample_dataset.py
+
+# Ignore large or local-only files
+__pycache__/
+*.pyc
