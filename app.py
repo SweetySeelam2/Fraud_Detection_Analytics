@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import datetime
 import gdown
 import streamlit.components.v1 as components
+import lime
+import lime.lime_tabular
 
 # ── Streamlit config ──────────────────────────────────────────────────────────
 st.set_page_config(page_title="🔍 Fraud Detection System", layout="wide")
@@ -235,13 +237,13 @@ elif page == "📊 Explainability":
         X = st.session_state["X"]
         shap_vals = explainer.shap_values(X)
 
-        # SHAP Summary
+        # --- SHAP Summary ---
         st.subheader("🔍 SHAP Summary Plot")
         fig, ax = plt.subplots()
         shap.summary_plot(shap_vals, X, show=False)
         st.pyplot(fig)
 
-        # SHAP Force Plot
+        # --- SHAP Force Plot ---
         st.subheader("🔎 SHAP Force Plot for One Prediction")
         idx = st.slider("Select index", 0, len(X) - 1, 0)
         force_plot_html = shap.force_plot(
@@ -257,15 +259,47 @@ elif page == "📊 Explainability":
         - The longer the bar, the greater the impact.
         """)
 
-        # LIME
-        st.subheader("🌐 LIME Explanation")
-        st.image("lime_explanation.png", caption="LIME Explanation for Transaction #15", use_column_width=True)
-        st.markdown("""
+        # --- DYNAMIC LIME EXPLANATION ---
+        st.subheader("🌐 LIME Explanation for Selected Transaction")
+        # Prepare LIME explainer (cache it so it doesn't reinitialize each run)
+        @st.cache_resource
+        def get_lime_explainer(X):
+            return lime.lime_tabular.LimeTabularExplainer(
+                training_data=X.values,
+                mode="classification",
+                feature_names=X.columns.tolist(),
+                class_names=["Not Fraud", "Fraud"],
+                discretize_continuous=True
+            )
+        lime_explainer = get_lime_explainer(X)
+
+        # Function for model prediction probabilities (required by LIME)
+        def model_predict_proba(input_data):
+            return model.predict_proba(input_data)
+
+        # Explain the selected transaction
+        lime_exp = lime_explainer.explain_instance(
+            X.iloc[idx].values,
+            model_predict_proba,
+            num_features=10
+        )
+
+        # Save HTML to temp and render it
+        lime_html_path = f"lime_exp_{idx}.html"
+        lime_exp.save_to_file(lime_html_path)
+        with open(lime_html_path, "r", encoding="utf-8") as f:
+            lime_html = f.read()
+        components.html(lime_html, height=600, scrolling=True)
+
+        st.markdown(f"""
         **Interpretation:**  
-        The LIME explanation above shows the top features that most influenced the model's prediction for this transaction.  
+        The LIME explanation above is for the **selected transaction (index {idx})**.  
         - **Green bars:** Features pushing towards "Not Fraud".
         - **Red bars:** Features pushing towards "Fraud".
-        - The feature values and their relative strengths provide transparency for each decision, supporting audit and compliance needs.
+        - The longer the bar, the greater the effect of that feature on the prediction.
+        - Hover over bars for feature value details.
+
+        This interactive plot provides **transparency for regulatory audits and business trust**.
         """)
 
     else:
