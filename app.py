@@ -242,19 +242,34 @@ elif page == "📊 Explainability":
 
         st.subheader("🔎 SHAP Force Plot for One Prediction")
         idx = st.slider("Select index", 0, len(X) - 1, 0)
-        force_plot_html = shap.force_plot(
-            explainer.expected_value, shap_vals[idx], X.iloc[idx], matplotlib=False
+        fig_force, ax_force = plt.subplots(figsize=(8, 2))
+        shap.force_plot(
+            explainer.expected_value,
+            shap_vals[idx],
+            X.iloc[idx],
+            matplotlib=True,
+            show=False,
+            ax=ax_force
         )
-        # Check for .html attribute if using shap>=0.44
-        html = force_plot_html if isinstance(force_plot_html, str) else force_plot_html.html()
-        components.html(html, height=350)
+        st.pyplot(fig_force)
+        st.markdown(f"""
+        **Interpretation:**  
+        The above force plot visualizes how each feature for the selected transaction (index {idx}) contributes to the model's prediction of fraud risk.  
+        - Features pushing the prediction **towards fraud** are shown in red.
+        - Features pushing **away from fraud** are in blue.
+        - The longer the bar, the greater the impact.
+        """)
 
         st.subheader("🌐 LIME Explanation")
-        st.markdown(
-            "📎 [View LIME explanation (Transaction #15)]"
-            "(lime_explanation_transaction_15.html)",
-            unsafe_allow_html=True
-        )
+        st.image("lime_explanation.png", caption="LIME Explanation for Transaction #15", use_column_width=True)
+        st.markdown("""
+        **Interpretation:**  
+        The LIME explanation above shows the top features that most influenced the model's prediction for this transaction.  
+        - **Green bars:** Features pushing towards "Not Fraud".
+        - **Red bars:** Features pushing towards "Fraud".
+        - The feature values and their relative strengths provide transparency for each decision, supporting audit and compliance needs.
+        """)
+
     else:
         st.warning("⚠️ Please run predictions first.")
 
