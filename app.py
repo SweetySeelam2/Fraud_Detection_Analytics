@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 import gdown
+import streamlit.components.v1 as components
 
 # ── Streamlit config ──────────────────────────────────────────────────────────
 st.set_page_config(page_title="🔍 Fraud Detection System", layout="wide")
@@ -244,7 +245,9 @@ elif page == "📊 Explainability":
         force_plot_html = shap.force_plot(
             explainer.expected_value, shap_vals[idx], X.iloc[idx], matplotlib=False
         )
-        st.components.v1.html(force_plot_html, height=300)
+        # Check for .html attribute if using shap>=0.44
+        html = force_plot_html if isinstance(force_plot_html, str) else force_plot_html.html()
+        components.html(html, height=350)
 
         st.subheader("🌐 LIME Explanation")
         st.markdown(
