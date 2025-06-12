@@ -182,12 +182,12 @@ elif page == "📁 Upload/Test Data":
         df_user = pd.read_csv(uploaded)
         st.session_state["df"] = df_user
         st.success("✅ File uploaded! Preview below:")
-        st.dataframe(df_user.head())
+        st.dataframe(df_user.head(20))
     elif st.button("Use Demo Sample"):
         df_sample = test_demo.copy()
         st.session_state["df"] = df_sample
-        st.success("✅ Loaded demo sample (1000 rows)")
-        st.dataframe(df_sample.head())
+        st.success("✅ Loaded demo sample (1500 rows)")
+        st.dataframe(df_sample.head(20))
 
     # Show Download button (if data loaded)
     if st.session_state["df"] is not None:
@@ -221,26 +221,17 @@ elif page == "🤖 Predict Fraud":
                     df_out = df.copy()
                     df_out["Fraud_Probability"] = probs
                     df_out["Fraud_Prediction"] = preds
-                    # Sort predictions by highest fraud probability
-                    df_show = df_out.sort_values("Fraud_Probability", ascending=False)
 
-                    # Select top 20 rows
-                    top20 = df_show.head(20)
-
-                    # Guarantee at least 2 frauds in display (if available)
-                    num_frauds = top20["Class"].sum()
-                    if num_frauds < 2:
-                        additional_frauds = df_show[(df_show["Class"] == 1) & (~df_show.index.isin(top20.index))]
-                        needed = 2 - int(num_frauds)
-                        if needed > 0 and len(additional_frauds) > 0:
-                            # Add up to the needed number of fraud rows (won't duplicate)
-                            top20 = pd.concat([top20, additional_frauds.head(needed)], ignore_index=True)
+                    # --- Show 10 frauds + 10 non-frauds ---
+                    top_frauds = df_out[df_out["Fraud_Prediction"] == 1].head(10)
+                    top_nonfrauds = df_out[df_out["Fraud_Prediction"] == 0].head(10)
+                    top20 = pd.concat([top_frauds, top_nonfrauds], ignore_index=True)
 
                     # For nice display: show probability as float with 4 decimals
                     top20_display = top20.copy()
                     top20_display["Fraud_Probability"] = top20_display["Fraud_Probability"].apply(lambda x: f"{x:.4f}")
 
-                    st.success("✅ Predictions complete! Top 20 transactions by fraud risk shown below (guaranteed 2 frauds if present):")
+                    st.success("✅ Predictions complete! 10 predicted frauds and 10 non-frauds shown below for transparency and business review:")
                     st.dataframe(top20_display)
 
                     # Download button for full results (all rows, not just top 20)
