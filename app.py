@@ -279,16 +279,44 @@ elif page == "📈 Business Insights":
         fraud_ct = int(df_out["Fraud_Prediction"].sum())
         total = len(df_out)
         rate = round((fraud_ct / total) * 100, 2) if total else 0
-        savings = fraud_ct * 500  # $500 per fraud transaction (adjust as needed)
+        savings = fraud_ct * 500  # $500 per fraud transaction
 
-        # Main KPIs
         st.metric("🚨 Fraudulent Transactions", fraud_ct)
         st.metric("📊 Detection Rate", f"{rate}%")
         st.metric("💰 Estimated Savings", f"${savings:,}")
 
-        # Dynamic recommendations
+        # If you have true labels (Class column), calculate confusion matrix
+        if "Class" in df_out.columns:
+            # 1 = fraud, 0 = not fraud
+            y_true = df_out["Class"].values
+            y_pred = df_out["Fraud_Prediction"].values
+
+            TP = int(((y_true == 1) & (y_pred == 1)).sum())
+            FP = int(((y_true == 0) & (y_pred == 1)).sum())
+            TN = int(((y_true == 0) & (y_pred == 0)).sum())
+            FN = int(((y_true == 1) & (y_pred == 0)).sum())
+
+            precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+            recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+            f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+            st.markdown(f"""
+            **Advanced Model Metrics**
+            - **True Positives (Fraud correctly detected):** {TP}
+            - **False Positives (Normal flagged as fraud):** {FP}
+            - **False Negatives (Missed fraud):** {FN}
+            - **Precision:** {precision:.2%}
+            - **Recall:** {recall:.2%}
+            - **F1 Score:** {f1:.2%}
+            """)
+        else:
+            st.info("ℹ️ Upload labeled data with a `Class` column to see advanced metrics like precision/recall.")
+
+        # Dynamic recommendations based on actual performance:
         st.markdown("### 📌 Strategic Recommendations")
         recommendations = []
+
+        # Basic fraud status
         if fraud_ct == 0:
             recommendations.append("✅ No fraud detected in this batch — model is performing well.")
         elif fraud_ct < 3:
@@ -296,11 +324,18 @@ elif page == "📈 Business Insights":
         else:
             recommendations.append("🚨 Investigate all flagged high-risk transactions (>90% fraud probability) immediately.")
 
-        if rate < 0.5:
-            recommendations.append("⚠️ Detection rate is low. Retrain model with up-to-date data or adjust probability threshold.")
-        elif rate > 5:
-            recommendations.append("⚠️ Detection rate is unusually high. Check for increased fraud activity or possible false positives.")
+        # Smarter recommendations with labels
+        if "Class" in df_out.columns:
+            if FP > 0:
+                recommendations.append(f"⚠️ {FP} false positives detected. Review flagged transactions for customer experience impact. Lower the fraud threshold if too many false alarms.")
+            if FN > 0:
+                recommendations.append(f"🚨 {FN} frauds missed! Raise fraud sensitivity or retrain model with more recent data.")
+            if recall < 0.80:
+                recommendations.append("📉 Recall is below 80%. The model is missing some frauds—consider threshold tuning or model retraining.")
+            if precision < 0.80:
+                recommendations.append("⚠️ Precision is below 80%. There are many false positives—revisit your feature engineering and threshold settings.")
 
+        # General best practices
         recommendations.extend([
             "🔄 Retrain model quarterly with new labeled data.",
             "🛡️ Use SHAP/LIME insights to support compliance and audit requirements.",
@@ -311,6 +346,13 @@ elif page == "📈 Business Insights":
 
     else:
         st.warning("⚠️ Please predict fraud first.")
+    
+        # Download results button
+    st.download_button(
+        "📥 Download Full Analysis Report (CSV)",
+        convert_df(df_out),
+        file_name="fraud_detection_full_report.csv"
+        )
 
 # ── Footer & License ──────────────────────────────────────────────────────────
 st.markdown("""
