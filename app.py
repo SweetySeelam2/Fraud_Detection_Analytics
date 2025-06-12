@@ -41,7 +41,7 @@ model, explainer = load_model_and_explainer()
 st.sidebar.title("📂 Navigation")
 page = st.sidebar.radio(
     "Go to",
-    ["🏠 Home", "📚 Model Information" "📁 Upload/Test Data", "🤖 Predict Fraud",
+    ["🏠 Home", "📚 Model Information", "📁 Upload/Test Data", "🤖 Predict Fraud",
      "📊 Explainability", "📈 Business Insights"]
 )
 
