@@ -8,7 +8,6 @@ data/creditcard.csv
 creditcard.csv
 data/creditcard_sample.csv
 data/creditcard.zip
-*.csv
 *.zip
 kaggle.json
 sample_dataset.py
