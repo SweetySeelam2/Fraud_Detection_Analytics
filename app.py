@@ -235,23 +235,20 @@ elif page == "📊 Explainability":
         X = st.session_state["X"]
         shap_vals = explainer.shap_values(X)
 
+        # SHAP Summary
         st.subheader("🔍 SHAP Summary Plot")
         fig, ax = plt.subplots()
         shap.summary_plot(shap_vals, X, show=False)
         st.pyplot(fig)
 
+        # SHAP Force Plot
         st.subheader("🔎 SHAP Force Plot for One Prediction")
         idx = st.slider("Select index", 0, len(X) - 1, 0)
-        fig_force, ax_force = plt.subplots(figsize=(8, 2))
-        shap.force_plot(
-            explainer.expected_value,
-            shap_vals[idx],
-            X.iloc[idx],
-            matplotlib=True,
-            show=False,
-            ax=ax_force
+        force_plot_html = shap.force_plot(
+            explainer.expected_value, shap_vals[idx], X.iloc[idx], matplotlib=False
         )
-        st.pyplot(fig_force)
+        html_to_render = force_plot_html.html() if hasattr(force_plot_html, 'html') else force_plot_html
+        components.html(html_to_render, height=350)
         st.markdown(f"""
         **Interpretation:**  
         The above force plot visualizes how each feature for the selected transaction (index {idx}) contributes to the model's prediction of fraud risk.  
@@ -260,6 +257,7 @@ elif page == "📊 Explainability":
         - The longer the bar, the greater the impact.
         """)
 
+        # LIME
         st.subheader("🌐 LIME Explanation")
         st.image("lime_explanation.png", caption="LIME Explanation for Transaction #15", use_column_width=True)
         st.markdown("""
@@ -279,21 +277,38 @@ elif page == "📈 Business Insights":
     if "df_results" in st.session_state:
         df_out = st.session_state["df_results"]
         fraud_ct = int(df_out["Fraud_Prediction"].sum())
-        total   = len(df_out)
-        rate     = round(fraud_ct / total * 100, 2)
-        savings  = fraud_ct * 500  # $500 per fraud
+        total = len(df_out)
+        rate = round((fraud_ct / total) * 100, 2) if total else 0
+        savings = fraud_ct * 500  # $500 per fraud transaction (adjust as needed)
 
+        # Main KPIs
         st.metric("🚨 Fraudulent Transactions", fraud_ct)
         st.metric("📊 Detection Rate", f"{rate}%")
         st.metric("💰 Estimated Savings", f"${savings:,}")
 
+        # Dynamic recommendations
         st.markdown("### 📌 Strategic Recommendations")
-        st.markdown("""
-            - Investigate high-risk transactions (>90% probability).
-            - Integrate model into real-time payment flow.
-            - Retrain quarterly with fresh data.
-            - Combine SHAP/LIME with manual review for compliance.
-        """)
+        recommendations = []
+        if fraud_ct == 0:
+            recommendations.append("✅ No fraud detected in this batch — model is performing well.")
+        elif fraud_ct < 3:
+            recommendations.append("🔎 Review flagged transactions carefully. Retrain with more recent data for greater accuracy.")
+        else:
+            recommendations.append("🚨 Investigate all flagged high-risk transactions (>90% fraud probability) immediately.")
+
+        if rate < 0.5:
+            recommendations.append("⚠️ Detection rate is low. Retrain model with up-to-date data or adjust probability threshold.")
+        elif rate > 5:
+            recommendations.append("⚠️ Detection rate is unusually high. Check for increased fraud activity or possible false positives.")
+
+        recommendations.extend([
+            "🔄 Retrain model quarterly with new labeled data.",
+            "🛡️ Use SHAP/LIME insights to support compliance and audit requirements.",
+            "🔗 Integrate the model with real-time payment flows for immediate risk mitigation."
+        ])
+
+        st.markdown('\n'.join(f"- {rec}" for rec in recommendations))
+
     else:
         st.warning("⚠️ Please predict fraud first.")
 
