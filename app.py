@@ -221,8 +221,29 @@ elif page == "🤖 Predict Fraud":
                     df_out = df.copy()
                     df_out["Fraud_Probability"] = probs
                     df_out["Fraud_Prediction"] = preds
-                    st.success("✅ Predictions complete! Sample below:")
-                    st.dataframe(df_out.head())
+                    # Sort predictions by highest fraud probability
+                    df_show = df_out.sort_values("Fraud_Probability", ascending=False)
+
+                    # Select top 20 rows
+                    top20 = df_show.head(20)
+
+                    # Guarantee at least 2 frauds in display (if available)
+                    num_frauds = top20["Class"].sum()
+                    if num_frauds < 2:
+                        additional_frauds = df_show[(df_show["Class"] == 1) & (~df_show.index.isin(top20.index))]
+                        needed = 2 - int(num_frauds)
+                        if needed > 0 and len(additional_frauds) > 0:
+                            # Add up to the needed number of fraud rows (won't duplicate)
+                            top20 = pd.concat([top20, additional_frauds.head(needed)], ignore_index=True)
+
+                    # For nice display: show probability as float with 4 decimals
+                    top20_display = top20.copy()
+                    top20_display["Fraud_Probability"] = top20_display["Fraud_Probability"].apply(lambda x: f"{x:.4f}")
+
+                    st.success("✅ Predictions complete! Top 20 transactions by fraud risk shown below (guaranteed 2 frauds if present):")
+                    st.dataframe(top20_display)
+
+                    # Download button for full results (all rows, not just top 20)
                     st.download_button(
                         "📥 Download Results",
                         convert_df(df_out),
