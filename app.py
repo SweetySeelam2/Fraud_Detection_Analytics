@@ -256,7 +256,7 @@ elif page == "📊 Explainability":
 
         # --- SHAP Summary ---
         st.subheader("🔍 SHAP Summary Plot")
-        fig, ax = plt.subplots(figsize=(7, 4))   # Adjust the figsize as needed (width, height)
+        fig, ax = plt.subplots(figsize=(4, 2))   # Adjust the figsize as needed (width, height)
         shap.summary_plot(shap_vals, X, show=False)
         st.pyplot(fig)
 
