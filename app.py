@@ -63,7 +63,7 @@ if page == "🏠 Home":
 elif page == "📁 Upload/Test Data":
     st.title("📁 Upload Your CSV or Use Demo Sample")
     uploaded = st.file_uploader(
-        "Upload a CSV with V1–V28, Amount, Time columns", type=["csv"]
+        "Upload a CSV with Time, V1–V28, Amount columns", type=["csv"]
     )
 
     if "df" not in st.session_state:
@@ -141,7 +141,6 @@ elif page == "📊 Explainability":
 
         st.subheader("🔎 SHAP Force Plot for One Prediction")
         idx = st.slider("Select index", 0, len(X) - 1, 0)
-        shap.initjs()
         force_plot_html = shap.force_plot(
             explainer.expected_value, shap_vals[idx], X.iloc[idx], matplotlib=False
         )
