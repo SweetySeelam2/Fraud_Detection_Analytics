@@ -11,6 +11,7 @@ data/creditcard.zip
 *.zip
 kaggle.json
 sample_dataset.py
+test_demo.py
 
 # Ignore large or local-only files
 __pycache__/
