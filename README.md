@@ -1,4 +1,4 @@
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://frauddetection-ml.streamlit.app/)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://frauddetection-analytics.streamlit.app/)
 
 ---
 
@@ -35,7 +35,7 @@ Credit card fraud costs businesses billions every year. This app tackles that ch
 Short description of the app, model, features.
 
 ### 📁 Upload/Test Data  
-Upload your own CSV with `V1–V28`, `Amount`, and `Time` columns or use demo samples (200 random rows).
+Upload your own CSV with `Time`, `V1–V28`, and `Amount` columns or use a balanced demo sample (1500 rows, includes both fraud and non-fraud cases for realistic testing).
 
 ### 🤖 Predict Fraud  
 Predict fraudulent transactions, see probability scores, and download results.
@@ -63,6 +63,7 @@ Summarizes:
 
 gdown.download(DRIVE_URL, CSV_FILE)
 
+A separate, balanced sample dataset (test_demo.csv) is generated for unbiased demo/testing in the app (contains a representative mix of fraud and non-fraud cases).
 ---
 
 ## 💡 Business Impact
@@ -87,7 +88,7 @@ gdown.download(DRIVE_URL, CSV_FILE)
 ## 🌐 Live App
 
 Use the app here:                                                   
-👉 (frauddetection-ml.streamlit.app)[https://frauddetection-ml.streamlit.app/]
+👉 (frauddetection-ml.streamlit.app)[https://frauddetection-analytics.streamlit.app/]
 
 ---
 
@@ -95,20 +96,22 @@ Use the app here:
 
 Fraud_Analytics/                                                 
 ├─ app.py                                                                         
-├─ creditcard.csv (downloaded at runtime)                                                  
+├─ creditcard.csv (downloaded at runtime)         
+├─ test_demo.csv (balanced demo sample for unbiased app testing)                                         
 ├─ model_xgb.pkl                                                           
 ├─ shap_explainer.pkl                                                                      
 ├─ lime_explanation_transaction_15.html                                   
-├─ requirements.txt                                                 
+├─ requirements.txt
+├─ test_demo.py (script to generate test_demo.csv)                                                 
 └─ Fraud_Identification_ML.ipynb                                                         
 
 ---
 
 ## ✅ How to Run Locally
 
-git clone https://github.com/SweetySeelam2/Fraud_Detection_ML.git                                                                                       
-cd Fraud_Detection_ML                                                                                       
-pip install -r requirements.txt                                                                                         
+git clone https://github.com/SweetySeelam2/Fraud_Detection_ML.git  
+cd Fraud_Detection_ML  
+pip install -r requirements.txt  
 streamlit run app.py                                                                                          
 
 ---
