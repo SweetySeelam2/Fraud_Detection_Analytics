@@ -256,9 +256,18 @@ elif page == "📊 Explainability":
 
         # --- SHAP Summary ---
         st.subheader("🔍 SHAP Summary Plot")
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(7, 4))   # Adjust the figsize as needed (width, height)
         shap.summary_plot(shap_vals, X, show=False)
         st.pyplot(fig)
+
+        st.markdown("""
+        **Key Insights:**
+        - **V14, V4, and V12** are the top drivers of fraud prediction.
+        - Both high and low feature values can strongly influence risk.
+        - **PCA features** capture most fraud-related patterns.
+        - **Amount** and **Time** have a moderate but notable impact.
+        - The model’s decisions are based on consistent, interpretable signals—not random noise.
+        """)
 
         # --- SHAP Force Plot ---
         st.subheader("🔎 SHAP Force Plot for One Prediction")
