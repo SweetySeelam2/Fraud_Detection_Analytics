@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import datetime
 import gdown
 
+# ── Streamlit config ──────────────────────────────────────────────────────────
+st.set_page_config(page_title="🔍 Fraud Detection System", layout="wide")
+
 # ── Data loading from Google Drive ─────────────────────────────────────────────
 CSV_FILE = "creditcard.csv"  # Saved directly in project root
 DRIVE_ID = "13E4KHR2-eq3P-rj08nORBZ6Bhc1W5E3n"
@@ -20,15 +23,16 @@ if not os.path.exists(CSV_FILE):
 # Load the full dataset (used later for sample or fallback)
 df = pd.read_csv(CSV_FILE)
 
-# ── Streamlit config ──────────────────────────────────────────────────────────
-st.set_page_config(page_title="🔍 Fraud Detection System", layout="wide")
-
 # ── Load model & explainer ─────────────────────────────────────────────────────
 @st.cache_resource
 def load_model_and_explainer():
-    model     = joblib.load("model_xgb.pkl")
-    explainer = joblib.load("shap_explainer.pkl")
-    return model, explainer
+    try:
+        model     = joblib.load("model_xgb.pkl")
+        explainer = joblib.load("shap_explainer.pkl")
+        return model, explainer
+    except Exception as e:
+        st.error(f"Failed to load model/explainer: {e}")
+        st.stop()
 
 model, explainer = load_model_and_explainer()
 
@@ -113,11 +117,10 @@ elif page == "📊 Explainability":
         st.subheader("🔎 SHAP Force Plot for One Prediction")
         idx = st.slider("Select index", 0, len(X) - 1, 0)
         shap.initjs()
-        force_html = shap.force_plot(
-            explainer.expected_value, shap_vals[idx], X.iloc[idx],
-            matplotlib=False, show=False
+        force_plot_html = shap.force_plot(
+            explainer.expected_value, shap_vals[idx], X.iloc[idx], matplotlib=False
         )
-        st.components.v1.html(shap.getjs() + force_html.html(), height=300)
+        st.components.v1.html(force_plot_html, height=300)
 
         st.subheader("🌐 LIME Explanation")
         st.markdown(
