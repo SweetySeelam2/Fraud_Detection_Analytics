@@ -1,6 +1,7 @@
+
+import streamlit as st
 import os
 import pandas as pd
-import streamlit as st
 import joblib
 import shap
 import numpy as np
@@ -64,43 +65,67 @@ elif page == "📁 Upload/Test Data":
     uploaded = st.file_uploader(
         "Upload a CSV with V1–V28, Amount, Time columns", type=["csv"]
     )
+
+    if "df" not in st.session_state:
+        st.session_state["df"] = None
+
+    # Handle file upload
     if uploaded:
-        df = pd.read_csv(uploaded)
-        st.success("✅ File uploaded!")
-        st.dataframe(df.head())
-        st.session_state["df"] = df
-    else:
-        if st.button("Use Demo Sample"):
-            df_sample = df.sample(200, random_state=42)
-            st.session_state["df"] = df_sample
-            st.success("✅ Loaded demo sample from full dataset (200 rows)")
-            st.dataframe(df_sample.head())
+        df_user = pd.read_csv(uploaded)
+        st.session_state["df"] = df_user
+        st.success("✅ File uploaded! Preview below:")
+        st.dataframe(df_user.head())
+    elif st.button("Use Demo Sample"):
+        df_sample = df_full.sample(200, random_state=42)
+        st.session_state["df"] = df_sample
+        st.success("✅ Loaded demo sample from full dataset (200 rows)")
+        st.dataframe(df_sample.head())
+
+    # Show Download button (if data loaded)
+    if st.session_state["df"] is not None:
+        st.download_button(
+            "📥 Download Uploaded/Demo Data",
+            convert_df(st.session_state["df"]),
+            file_name="uploaded_or_demo_data.csv"
+        )
+        # Add submit button for confirmation
+        if st.button("Submit Data for Prediction"):
+            st.session_state["ready_for_prediction"] = True
+            st.success("✅ Data submitted! Go to 'Predict Fraud' page.")
 
 # ── Page 3: Predict Fraud ───────────────────────────────────────────────────────
 elif page == "🤖 Predict Fraud":
     st.title("🤖 Predict Fraudulent Transactions")
-    if "df" in st.session_state:
+    if "df" in st.session_state and st.session_state["df"] is not None:
         df = st.session_state["df"]
-        features = [c for c in df.columns if c.startswith("V")] + ["Amount", "Time"]
-        X = df[features]
-        preds = model.predict(X)
-        probs = model.predict_proba(X)[:, 1]
-
-        df_out = df.copy()
-        df_out["Fraud_Probability"] = probs
-        df_out["Fraud_Prediction"]  = preds
-
-        st.success("✅ Predictions complete!")
-        st.dataframe(df_out.head())
-        st.download_button(
-            "📥 Download Results",
-            convert_df(df_out),
-            file_name="fraud_predictions.csv"
-        )
-        st.session_state["df_results"] = df_out
-        st.session_state["X"] = X
+        # Ensure correct column order for XGBoost
+        features = ["Time"] + [f"V{i}" for i in range(1, 29)] + ["Amount"]
+        missing_cols = [col for col in features if col not in df.columns]
+        extra_cols = [col for col in df.columns if col not in features]
+        if missing_cols:
+            st.error(f"Your data is missing these required columns: {missing_cols}")
+        else:
+            X = df[features]
+            if st.button("Predict Fraud"):
+                try:
+                    preds = model.predict(X)
+                    probs = model.predict_proba(X)[:, 1]
+                    df_out = df.copy()
+                    df_out["Fraud_Probability"] = probs
+                    df_out["Fraud_Prediction"] = preds
+                    st.success("✅ Predictions complete! Sample below:")
+                    st.dataframe(df_out.head())
+                    st.download_button(
+                        "📥 Download Results",
+                        convert_df(df_out),
+                        file_name="fraud_predictions.csv"
+                    )
+                    st.session_state["df_results"] = df_out
+                    st.session_state["X"] = X
+                except Exception as e:
+                    st.error(f"Prediction failed: {e}")
     else:
-        st.warning("⚠️ Please upload or load data first.")
+        st.warning("⚠️ Please upload or load data first (and submit it on previous page).")
 
 # ── Page 4: Explainability ──────────────────────────────────────────────────────
 elif page == "📊 Explainability":
