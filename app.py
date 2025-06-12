@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import joblib
 import shap
+from streamlit_shap import st_shap
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
@@ -26,6 +27,10 @@ if not os.path.exists(CSV_FILE):
 
 # Load the full dataset (used later for sample or fallback)
 df = pd.read_csv(CSV_FILE)
+
+# -----Test Demo Sample -------------
+TEST_FILE = "test_demo.csv"
+test_demo = pd.read_csv(TEST_FILE)
 
 # ── Load model & explainer ─────────────────────────────────────────────────────
 @st.cache_resource
@@ -179,9 +184,9 @@ elif page == "📁 Upload/Test Data":
         st.success("✅ File uploaded! Preview below:")
         st.dataframe(df_user.head())
     elif st.button("Use Demo Sample"):
-        df_sample = df.sample(200, random_state=42)
+        df_sample = test_demo.copy()
         st.session_state["df"] = df_sample
-        st.success("✅ Loaded demo sample from full dataset (200 rows)")
+        st.success("✅ Loaded demo sample (1000 rows)")
         st.dataframe(df_sample.head())
 
     # Show Download button (if data loaded)
@@ -246,11 +251,10 @@ elif page == "📊 Explainability":
         # --- SHAP Force Plot ---
         st.subheader("🔎 SHAP Force Plot for One Prediction")
         idx = st.slider("Select index", 0, len(X) - 1, 0)
-        force_plot_html = shap.force_plot(
+        force_plot = shap.force_plot(
             explainer.expected_value, shap_vals[idx], X.iloc[idx], matplotlib=False
         )
-        html_to_render = force_plot_html.html() if hasattr(force_plot_html, 'html') else force_plot_html
-        components.html(html_to_render, height=350)
+        st_shap(force_plot, height=350)
         st.markdown(f"""
         **Interpretation:**  
         The above force plot visualizes how each feature for the selected transaction (index {idx}) contributes to the model's prediction of fraud risk.  
@@ -261,7 +265,6 @@ elif page == "📊 Explainability":
 
         # --- DYNAMIC LIME EXPLANATION ---
         st.subheader("🌐 LIME Explanation for Selected Transaction")
-        # Prepare LIME explainer (cache it so it doesn't reinitialize each run)
         @st.cache_resource
         def get_lime_explainer(X):
             return lime.lime_tabular.LimeTabularExplainer(
@@ -272,19 +275,13 @@ elif page == "📊 Explainability":
                 discretize_continuous=True
             )
         lime_explainer = get_lime_explainer(X)
-
-        # Function for model prediction probabilities (required by LIME)
         def model_predict_proba(input_data):
             return model.predict_proba(input_data)
-
-        # Explain the selected transaction
         lime_exp = lime_explainer.explain_instance(
             X.iloc[idx].values,
             model_predict_proba,
             num_features=10
         )
-
-        # Save HTML to temp and render it
         lime_html_path = f"lime_exp_{idx}.html"
         lime_exp.save_to_file(lime_html_path)
         with open(lime_html_path, "r", encoding="utf-8") as f:
