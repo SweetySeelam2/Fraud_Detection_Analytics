@@ -131,4 +131,4 @@ Aspiring Data Scientist | Business Analyst | Fraud Analytics | ML Deployment
 ## 🔒 Proprietary & All Rights Reserved
 © 2025 Sweety Seelam. This work is proprietary and protected by copyright. All content, models, code, and visuals are © 2025 Sweety Seelam. No part of this project, app, code, or analysis may be copied, reproduced, distributed, or used for any purpose—commercial or otherwise—without explicit written permission from the author.
 
-For licensing, commercial use, or collaboration inquiries, please contact: LinkedIn | Email: sweetyseelam2@gmail.com
+For licensing, commercial use, or collaboration inquiries, please contact: Email: sweetyseelam2@gmail.com
