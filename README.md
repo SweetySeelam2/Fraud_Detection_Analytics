@@ -116,19 +116,23 @@ streamlit run app.py
 
 ---
 
-## 👩‍💻 Author
+## 👩‍💼 About the Author    
 
-**Sweety Seelam**  
-Aspiring Data Scientist | Business Analyst | Fraud Analytics | ML Deployment                                   
+**Sweety Seelam** | Business Analyst | Aspiring Data Scientist | Passionate about building end-to-end ML solutions for real-world problems                                                                                                      
+                                                                                                                                           
+Email: sweetyseelam2@gmail.com                                                   
 
-🔗 Reach out to me:                                                                    
-• [LinkedIn](https://www.linkedin.com/in/sweetyrao670/)                                                                            
-• [GitHub](https://github.com/SweetySeelam2/Fraud_Detection_ML)                                                                         
-• [Portfolio](https://sweetyseelam2.github.io/SweetySeelam.github.io/)                                                      
+🔗 **Profile Links**                                                                                                                                                                       
+[Portfolio Website](https://sweetyseelam2.github.io/SweetySeelam.github.io/)                                                         
+[LinkedIn](https://www.linkedin.com/in/sweetyrao670/)                                                                   
+[GitHub](https://github.com/SweetySeelam2)                                                             
+[Medium](https://medium.com/@sweetyseelam)
 
 ---
 
-## 🔒 Proprietary & All Rights Reserved
-© 2025 Sweety Seelam. This work is proprietary and protected by copyright. All content, models, code, and visuals are © 2025 Sweety Seelam. No part of this project, app, code, or analysis may be copied, reproduced, distributed, or used for any purpose—commercial or otherwise—without explicit written permission from the author.
+## 🔐 Proprietary & All Rights Reserved
+© 2025 Sweety Seelam. All rights reserved.
 
-For licensing, commercial use, or collaboration inquiries, please contact: Email: sweetyseelam2@gmail.com
+This project, including its source code, trained models, datasets (where applicable), visuals, and dashboard assets, is protected under copyright and made available for educational and demonstrative purposes only.
+
+Unauthorized commercial use, redistribution, or duplication of any part of this project is strictly prohibited.
